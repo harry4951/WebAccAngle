@@ -17,15 +17,15 @@ function handleHeartRateMeasurement(heartRateMeasurement) {
     var heartRateMeasurement = heartRateSensor.parseHeartRate(event);
 
     var angle = heartRateMeasurement.heartRate[2]/1024.0 * 4.0 ;
-    if(angle > 1.0)
-    {
-      angle = 1.0;
-    }
+    // if(angle > 1.0)
+    // {
+    //   angle = 1.0;
+    // }
 
-    if(angle < -1.0)
-    {
-      angle = -1.0;
-    }
+    // if(angle < -1.0)
+    // {
+    //   angle = -1.0;
+    // }
     var pi = Math.PI;
     //degree = radians * (180/pi);
     //var degree = Math.asin(angle)*90
@@ -38,7 +38,7 @@ function handleHeartRateMeasurement(heartRateMeasurement) {
     // {
     //   degree = -90.0
     // }
-    statusText.innerHTML =  'Rawdata: ' + heartRateMeasurement.heartRate[2] + "<br/>"  + 'Degree: ' +degree.toFixed(2);// + ' &#x2764;'; + 'G: ' + angle.toFixed(2) + "<br/>"
+    statusText.innerHTML =  'Accdata: ' + angle.toFixed(2)  + "g <br/>"  + 'Degree: ' +degree.toFixed(2);// + ' &#x2764;'; +  'Rawdata: ' + heartRateMeasurement.heartRate[2]
 
     heartRates.push(heartRateMeasurement.heartRate);
     //console.log(heartRates);
