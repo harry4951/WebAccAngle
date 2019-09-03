@@ -15,7 +15,31 @@ function handleHeartRateMeasurement(heartRateMeasurement) {
   heartRateMeasurement.addEventListener('characteristicvaluechanged', event => {
     //var heartRateMeasurement = heartRateSensor.parseHeartRate(event.target.value);
     var heartRateMeasurement = heartRateSensor.parseHeartRate(event);
-    statusText.innerHTML = heartRateMeasurement.heartRate + ' &#x2764;';
+
+    var angle = heartRateMeasurement.heartRate[2]/1024.0 * 4.0 ;
+    if(angle > 1.0)
+    {
+      angle = 1.0;
+    }
+
+    if(angle < -1.0)
+    {
+      angle = -1.0;
+    }
+    var pi = Math.PI;
+    //degree = radians * (180/pi);
+    //var degree = Math.asin(angle)*90
+    var degree = Math.asin(angle) * (180/pi);
+    // if( degree >= 90.0)
+    // {
+    //   degree = 90.0
+    // }
+    // else if(degree < -90.0)
+    // {
+    //   degree = -90.0
+    // }
+    statusText.innerHTML =  'Rawdata: ' + heartRateMeasurement.heartRate[2] + "<br/>"  + 'Degree: ' +degree.toFixed(2);// + ' &#x2764;'; + 'G: ' + angle.toFixed(2) + "<br/>"
+
     heartRates.push(heartRateMeasurement.heartRate);
     //console.log(heartRates);
     drawWaves();
@@ -39,7 +63,7 @@ function drawWaves() {
     var margin = 2;
     var max = Math.max(0, Math.round(canvas.width / 50));//11
     var offset = Math.max(0, heartRates.length - max);
-
+    //console.log(max);
     var height_offset = Math.max(0, Math.round(canvas.height / 3)); 
     var width_offset = Math.max(0, Math.round(canvas.height / 2));
     /**
@@ -54,43 +78,59 @@ function drawWaves() {
     context.strokeStyle = '#00796B';
     if (mode === 'bar') {
       //context.beginPath();
-      for (var i = 0; i < Math.max(heartRates.length, max) - 1; i++) {
-        //var barHeight = Math.round(heartRates[i + offset ][0] * canvas.height / 200);
-        var barHeight = Math.round((heartRates[i + offset ][0]) * canvas.height / 200000);
-        //console.log(barHeight);
-        context.rect(11 * i + margin + width_offset, canvas.height - barHeight - height_offset - height_offset, margin, Math.max(0, barHeight - margin));
-        context.stroke();
-      }
+      
+        // for (var i = 0; i < Math.max(heartRates.length, max) - 1; i++) {
+        //   //var barHeight = Math.round(heartRates[i + offset ][0] * canvas.height / 200);
+        //   var barHeight = Math.round((heartRates[i + offset ][0]) * canvas.height / 200000);
+        //   //console.log(barHeight);
+        //   context.rect(11 * i + margin + width_offset, canvas.height - barHeight - height_offset - height_offset, margin, Math.max(0, barHeight - margin));
+        //   context.stroke();
+        // }
+  
+         for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
+           if(heartRates[i + offset ][2] >= 0)
+           {
+            var barHeight = Math.round((heartRates[i][2]) * canvas.height / 20000 * 20);
+            context.rect(11 * i + margin + width_offset, canvas.height - barHeight - height_offset, margin, Math.max(0, barHeight - margin));
+            context.stroke();
+           }
+           else if(heartRates[i + offset ][2] < 0)
+           {
+            var barHeight = -1 * Math.round((heartRates[i][2]) * canvas.height / 20000 * 20);
+            //console.log(barHeight);
+            context.rect(11 * i + margin + width_offset, canvas.height - height_offset, margin, Math.max(0, barHeight - margin));
+            context.stroke();
+           }
+         
+         }
+  
+        // for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
+        //   //var barHeight = Math.round((heartRates[i + offset ][2]) * canvas.height / 200000);
+        //   var barHeight = Math.round((heartRates[i][2]) * canvas.height / 20000 * 5);
+        //   context.rect(11 * i + margin + width_offset, canvas.height - barHeight, margin, Math.max(0, barHeight - margin));
+        //   context.stroke();
+        // }
+  
+        // for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
+        //   var barHeight = Math.round((heartRates[i + offset ][3]) * canvas.height / 200000);
+        //   context.rect(11 * i + margin, canvas.height - barHeight - height_offset - height_offset, margin, Math.max(0, barHeight - margin));
+        //   context.stroke();
+        // }
+  
+        // for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
+        //   var barHeight = Math.round((heartRates[i + offset ][4]) * canvas.height / 200000);
+        //   context.rect(11 * i + margin, canvas.height - barHeight - height_offset, margin, Math.max(0, barHeight - margin));
+        //   context.stroke();
+        // }
+  
+        // for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
+        //   var barHeight = Math.round((heartRates[i + offset ][5]) * canvas.height / 200000);
+        //   context.rect(11 * i + margin, canvas.height - barHeight, margin, Math.max(0, barHeight - margin));
+        //   context.stroke();
+        // }
 
-      for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
-        var barHeight = Math.round((heartRates[i + offset ][1]) * canvas.height / 200000);
-        context.rect(11 * i + margin + width_offset, canvas.height - barHeight - height_offset, margin, Math.max(0, barHeight - margin));
-        context.stroke();
-      }
+      
 
-      for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
-        var barHeight = Math.round((heartRates[i + offset ][2]) * canvas.height / 200000);
-        context.rect(11 * i + margin + width_offset, canvas.height - barHeight, margin, Math.max(0, barHeight - margin));
-        context.stroke();
-      }
-
-      for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
-        var barHeight = Math.round((heartRates[i + offset ][3]) * canvas.height / 200000);
-        context.rect(11 * i + margin, canvas.height - barHeight - height_offset - height_offset, margin, Math.max(0, barHeight - margin));
-        context.stroke();
-      }
-
-      for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
-        var barHeight = Math.round((heartRates[i + offset ][4]) * canvas.height / 200000);
-        context.rect(11 * i + margin, canvas.height - barHeight - height_offset, margin, Math.max(0, barHeight - margin));
-        context.stroke();
-      }
-
-      for (var i = 0; i < Math.max(heartRates.length, max)- 1; i++) {
-        var barHeight = Math.round((heartRates[i + offset ][5]) * canvas.height / 200000);
-        context.rect(11 * i + margin, canvas.height - barHeight, margin, Math.max(0, barHeight - margin));
-        context.stroke();
-      }
       //context.closePath();
      } //else if (mode === 'line') {
     //   context.beginPath();

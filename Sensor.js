@@ -1,6 +1,8 @@
 (function() {
   'use strict';
 
+  //const cusUUID = '00007c80-0000-1000-8000-00805f9b34fb';
+  const cusUUID = 0x2A57;
   class HeartRateSensor {
     constructor() {
       this.device = null;
@@ -10,7 +12,7 @@
     connect() {
       let options = {
         filters: [
-          {name: 'WRLDS_GEN2'}
+          {name: 'HELLO WRLDS'}
         ],
         optionalServices: [0x1811]
       }
@@ -50,7 +52,8 @@
             return Promise.all([
               //this._cacheCharacteristic(service, 'body_sensor_location'),
               //this._cacheCharacteristic(service, 'heart_rate_measurement'),
-              this._cacheCharacteristic(service, 0x2A56),
+              //this._cacheCharacteristic(service, 0x2A57),
+              this._cacheCharacteristic(service, cusUUID),
             ])
           })
         ]);
@@ -83,22 +86,30 @@
      });
     }
     startNotificationsHeartRateMeasurement() {
-      return this._startNotifications(0x2A56);
+      return this._startNotifications(cusUUID);
     }
     stopNotificationsHeartRateMeasurement() {
-      return this._stopNotifications(0x2A56);
+      return this._stopNotifications(cusUUID);
     }
     parseHeartRate(event) {
       // In Chrome 50+, a DataView is returned instead of an ArrayBuffer.
       let value = event.target.value;
       
       value = value.buffer ? value : new DataView(value);
+      //console.log(value); 
       let result = {};
       let accArray = [];
       for (let index = 0; index < value.byteLength; index += 2) {
-        accArray.push(value.getUint16(index, /*littleEndian=*/true));
+        //accArray.push(value.getUint16(index, /*littleEndian=*/false));
+        let tmp = value.getUint16(index, /*littleEndian=*/false);
+        if(tmp > 32767)
+        {
+          tmp = tmp - 65536; 
+        }
+        accArray.push(tmp);
       }
-         result.heartRate = accArray;
+      //console.log(accArray); 
+      result.heartRate = accArray;
       // let flags = value.getUint8(0);
       // let rate16Bits = flags & 0x1;
       // let result = {};
