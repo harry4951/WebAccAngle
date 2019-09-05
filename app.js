@@ -61,7 +61,7 @@ function handleHeartRateMeasurement(heartRateMeasurement) {
 
 var sounds = {
   "dead" : {
-    url : "https://www.soundjay.com/button/sounds/button-3.mp3"
+    url : "sounds/dead.mp3"
   },
   "smash" : {
     url : "sounds/smash.mp3",
