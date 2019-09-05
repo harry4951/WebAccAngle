@@ -51,7 +51,7 @@ function handleHeartRateMeasurement(heartRateMeasurement) {
     previou_degree = degree;
     heartRates.push(heartRateMeasurement.heartRate);
     //console.log(heartRates);
-    //drawWaves();
+    drawWaves();
   });
 }
 
