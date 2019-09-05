@@ -1,5 +1,8 @@
 var canvas = document.querySelector('canvas');
 var statusText = document.querySelector('#statusText');
+var counter = 0;
+var previou_degree = 0;
+
 
 statusText.addEventListener('click', function() {
   statusText.textContent = 'Rotate...';
@@ -38,13 +41,96 @@ function handleHeartRateMeasurement(heartRateMeasurement) {
     // {
     //   degree = -90.0
     // }
-    statusText.innerHTML =  'Accdata: ' + angle.toFixed(2)  + "g <br/>"  + 'Degree: ' +degree.toFixed(2);// + ' &#x2764;'; +  'Rawdata: ' + heartRateMeasurement.heartRate[2]
-
+    
+    if((previou_degree *  degree) < 0 && (previou_degree > 0) && (degree < 0))
+    {
+      counter++;
+      playSound ('dead');
+    }
+    statusText.innerHTML =  'Accdata: ' + angle.toFixed(2)  + "g <br/>"  + 'Degree: ' +degree.toFixed(2) + '<br/> Hit:' + counter;// + ' &#x2764;'; +  'Rawdata: ' + heartRateMeasurement.heartRate[2]
+    previou_degree = degree;
     heartRates.push(heartRateMeasurement.heartRate);
     //console.log(heartRates);
-    drawWaves();
+    //drawWaves();
   });
 }
+
+// function playSound () {
+//   document.getElementById('play').play();
+// }
+
+var sounds = {
+  "dead" : {
+    url : "https://www.soundjay.com/button/sounds/button-3.mp3"
+  },
+  "smash" : {
+    url : "sounds/smash.mp3",
+  },
+  "ping" : {
+    url : "sounds/ping.mp3"
+  },
+  "bump" : {
+    url : "sounds/bump.mp3"
+  },
+  "jump" : {
+    url : "sounds/jump.wav"
+  },
+  "coin" : {
+    url : "sounds/coin.mp3"
+  }
+};
+
+
+var soundContext = new AudioContext();
+
+for(var key in sounds) {
+  loadSound(key);
+}
+
+function loadSound(name){
+  var sound = sounds[name];
+
+  var url = sound.url;
+  var buffer = sound.buffer;
+
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.responseType = 'arraybuffer';
+
+  request.onload = function() {
+    soundContext.decodeAudioData(request.response, function(newBuffer) {
+      sound.buffer = newBuffer;
+    });
+  }
+
+  request.send();
+}
+
+function playSound(name, options){
+  var sound = sounds[name];
+  var soundVolume = sounds[name].volume || 1;
+
+  var buffer = sound.buffer;
+  if(buffer){
+    var source = soundContext.createBufferSource();
+    source.buffer = buffer;
+
+    var volume = soundContext.createGain();
+
+    if(options) {
+      if(options.volume) {
+        volume.gain.value = soundVolume * options.volume;
+      }
+    } else {
+      volume.gain.value = soundVolume;
+    }
+
+    volume.connect(soundContext.destination);
+    source.connect(volume);
+    source.start(0);
+  }
+}
+
 
 var heartRates = [];
 var mode = 'bar';
